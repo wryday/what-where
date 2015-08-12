@@ -23,6 +23,8 @@ public class MapsActivity extends FragmentActivity implements
         GoogleApiClient.OnConnectionFailedListener {
     private static final String TAG = MapsActivity.class.getSimpleName();
 
+    private static final int DEFAULT_ZOOM_LEVEL = 14;
+
     protected GoogleApiClient mGoogleApiClient;
     protected Location mLastLocation;
 
@@ -117,7 +119,7 @@ public class MapsActivity extends FragmentActivity implements
         if (mLastLocation != null && mMap != null) {
             LatLng latLng = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
             mMap.addMarker(new MarkerOptions().position(latLng).title("Marker"));
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, 12));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(latLng, DEFAULT_ZOOM_LEVEL));
         }
     }
 
