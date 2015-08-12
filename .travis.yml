@@ -1,4 +1,10 @@
 language: android
+jdk: oraclejdk7
+cache:
+  directories:
+  - node_modules
+sudo: false
+
 android:
   components:
     # Uncomment the lines below if you want to
@@ -21,6 +27,25 @@ android:
 
     # Specify at least one system image,
     # if you need to run emulator(s) during your tests
-    # - sys-img-armeabi-v7a-android-19
+    - sys-img-armeabi-v7a-android-21
     # - sys-img-x86-android-17
 
+  licenses:
+    - 'android-sdk-license-.+'
+
+env:
+  global:
+    # install timeout in minutes (2 minutes by default)
+    - ADB_INSTALL_TIMEOUT=8
+
+# Emulator Management: Create, Start and Wait
+before_script:
+  - echo no | android create avd --force -n test -t android-21 --abi armeabi-v7a
+  - emulator -avd test -no-skin -no-audio -no-window &
+  - adb wait-for-device
+  - adb shell input keyevent 82 &
+
+script:
+  - echo $ADB_INSTALL_TIMEOUT
+  - android list target
+  - ./gradlew connectedAndroidTest
