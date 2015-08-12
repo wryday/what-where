@@ -49,3 +49,6 @@ script:
   - echo $ADB_INSTALL_TIMEOUT
   - android list target
   - ./gradlew connectedAndroidTest
+
+notifications:
+  slack: wryday:6dvBMS1agi8S0vAowzq2gFXA
