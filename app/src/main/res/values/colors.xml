@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="trans_black">#88000000</color>
+
+    <color name="icon_red">#FF5722</color>
+    <color name="icon_bg_grey">#666688</color>
+
+</resources>
