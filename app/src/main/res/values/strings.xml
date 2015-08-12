@@ -3,4 +3,6 @@
     <string name="title_activity_maps">Map</string>
 
     <string name="lat_long_text">Lat/Long: </string>
+    <string name="address_text">Address: </string>
+
 </resources>

@@ -1,7 +1,11 @@
 package com.wryday.whatwhere;
 
+import android.content.Intent;
+import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.ResultReceiver;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
@@ -18,6 +22,8 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.text.ParseException;
+
 public class MapsActivity extends FragmentActivity implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener {
@@ -31,7 +37,10 @@ public class MapsActivity extends FragmentActivity implements
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
 
     private TextView mLatLongText;
+    private TextView mAddressText;
     private ImageButton mLocationButton;
+
+    private AddressResultReceiver mResultReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +48,8 @@ public class MapsActivity extends FragmentActivity implements
         setContentView(R.layout.activity_maps);
 
         mLatLongText = (TextView) findViewById(R.id.lat_long_text);
+        mAddressText = (TextView) findViewById(R.id.address_text);
+
         mLocationButton = (ImageButton) findViewById(R.id.location_button);
         mLocationButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -123,12 +134,29 @@ public class MapsActivity extends FragmentActivity implements
         }
     }
 
+    private void getAddress() {
+        if (Geocoder.isPresent()) {
+            startIntentService();
+        }
+    }
+
+    private void showToast(String message) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show();
+    }
+
     protected synchronized void buildGoogleApiClient() {
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API)
                 .build();
+    }
+
+    protected void startIntentService() {
+        Intent intent = new Intent(this, FetchAddressIntentService.class);
+        intent.putExtra(Constants.RECEIVER, mResultReceiver);
+        intent.putExtra(Constants.LOCATION_DATA_EXTRA, mLastLocation);
+        startService(intent);
     }
 
     @Override
@@ -140,6 +168,7 @@ public class MapsActivity extends FragmentActivity implements
                     String.valueOf(mLastLocation.getLatitude()) + " / " +
                     String.valueOf(mLastLocation.getLongitude()));
             gotoCurrentLocation();
+            getAddress();
         } else {
             Toast.makeText(this, "No Location Detected", Toast.LENGTH_LONG).show();
         }
@@ -154,5 +183,21 @@ public class MapsActivity extends FragmentActivity implements
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
         Log.e(TAG, "Connection failed: ConnectionResult.getErrorCode() = " + connectionResult.getErrorCode());
+    }
+
+    public class AddressResultReceiver extends ResultReceiver {
+
+        public AddressResultReceiver(Handler handler) {
+            super(handler);
+        }
+
+        @Override
+        protected void onReceiveResult(int resultCode, Bundle resultData) {
+            mAddressText.setText(getString(R.string.address_text) + resultData.getString(Constants.RESULT_DATA_KEY));
+
+            if (resultCode == Constants.SUCCESS_RESULT) {
+                showToast("Address Found");
+            }
+        }
     }
 }
