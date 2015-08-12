@@ -58,6 +58,8 @@ public class MapsActivity extends FragmentActivity implements
             }
         });
 
+        mResultReceiver = new AddressResultReceiver(new Handler());
+
         buildGoogleApiClient();
 
         setUpMapIfNeeded();
